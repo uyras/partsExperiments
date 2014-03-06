@@ -9,47 +9,82 @@
 
 using namespace std;
 
-int main(){
+ofstream f;
+void experiment(int lattice,int replicas, int steps, int tMin, int tMax){
+
+    PartArray* sys = new PartArray(lattice,lattice,1);
+    sys->dropChain();
+    double eMin = sys->calcEnergy1(); //замерили минимум
+    sys->shuffleM();//перемешали состояния
+    sys->setToPTGroundState(replicas,steps,tMin,tMax);
+    double E = sys->calcEnergy1();
+
+    f<<
+        lattice<<"\t"<<
+        lattice<<"\t"<<
+        lattice*lattice<<"\t"<<
+        replicas<<"\t"<<
+        steps<<"\t"<<
+        tMin<<"\t"<<
+        tMax<<"\t"<<
+        eMin<<"\t"<<
+        E<<"\t";
+
+    delete sys;
+}
+
+/**
+ * Параметры:
+ * 1. Файл для сохранения
+ * 2. количество реплик
+ * 3. количество шагов
+ * 4. температура минимума
+ * 5. температура максимума
+ */
+int main(int argc, char *argv[]){
     config::Instance()->srand(time(NULL));
     config::Instance()->partR = 0.5; //радиус частицы 0.5
     config::Instance()->m = 1.; //вектор = 2R;
     config::Instance()->set2D();
-    double calcError = 0.01; //погрешность рассчета 1 процент
     int experiments = 100; //количество экспериментов
     clock_t time; //время рассчета
 
-    ofstream f("squareLatticePT.txt");
-    f<<"x\ty\tparts\taccuracy\tspeed"<<endl;
+    f.open(argv[1],ios_base::trunc);
 
-    for (int j=3;j<=10;j++){
-        cout<<"start with "<<j<<"x"<<j<<" lattice with "<<j*j<<" particles"<<endl;
+    f<<
+        "x\t"<<
+        "y\t"<<
+        "parts\t"<<
+        "replicas\t"<<
+        "steps\t"<<
+        "t Min\t"<<
+        "t Max\t"<<
+        "e Real"<<
+        "e PT"<<
+        "speed"<<endl;
 
-        time = clock();
-        int validExp = 0; //точность рассчета, %
+    for (int lattice=3;lattice<=20;lattice++){
+
+
+
+
         for (int i=0;i<experiments;i++){
-            PartArray* sys = new PartArray(j,j,1);
-            sys->dropChain();
-            sys->save("sys.dat");
-            double eMin = sys->calcEnergy1(); //замерили минимум
-            double delta = fabs(eMin*calcError); //замерили погрешность расчета
-            sys->shuffleM();//перемешали состояния
-            sys->setToPTGroundState(5,1000,0,3);
-            double E = sys->calcEnergy1();
-
-            if (fabs(eMin-E)<delta)
-                validExp++;
-
-            delete sys;
+            cout<<
+                   "start with "<<
+                   lattice<<" lattice, "<<
+                   argv[2]<<" replicas, "<<
+                   argv[3]<<" steps, "<<
+                   argv[4]<<" tMin, "<<
+                   argv[5]<<" tMax, "<<
+                    i+1<<" of "<<experiments<<endl;
+            time = clock();
+            experiment(lattice, atoi(argv[2]), atoi(argv[3]), atof(argv[4]), atof(argv[5]));
+            time = clock() - time;
+            f<<(double)time/CLOCKS_PER_SEC<<endl;
         }
-        time = clock() - time;
 
-        f
-                <<j<<"\t"
-               <<j<<"\t"
-              <<j*j<<"\t"
-             <<(double)validExp/(double)experiments<<"\t"
-            <<(double)time/CLOCKS_PER_SEC
-           <<endl;
+
+
     }
 
 
