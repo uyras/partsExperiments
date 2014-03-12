@@ -13,16 +13,18 @@ struct hist{
     int step;
     double e;
     double eMin;
+    double eMax;
     int iteration;
 };
 
 void saveVector(char* filename,vector<hist> history){
     ofstream f(filename);
-    f<<"step\te\teMin\titeration"<<endl;
+    f<<"step\te\teMin\teMax\titeration"<<endl;
     for (int i=0;i<history.size();i++){
         f<<history[i].step<<"\t"<<
            history[i].e<<"\t"<<
            history[i].eMin<<"\t"<<
+           history[i].eMax<<"\t"<<
            history[i].iteration<<"\t"<<endl;
     }
     f.close();
@@ -31,25 +33,28 @@ void saveVector(char* filename,vector<hist> history){
 int main(){
     config::Instance()->srand(time(NULL));
     int parts = 20;
+    int size = 7;
 
     PartArray *sys1,*sys2;
     vector<double> subHistory;
     vector<hist> history;
-    double eTemp;
+    double eTemp,eTemp2;
 
     //processStep
     for (int i=0;i<100;i++){
         cout<<"start "<<i<<" of PS"<<endl;
-        sys1 = new PartArray(6,6,1,parts);
+        sys1 = new PartArray(size,size,1,parts);
         sys2 = sys1->copy();
         sys1->setToGroundState();
         eTemp = sys1->calcEnergy1();
+        sys1->setToMaximalState();
+        eTemp2 = sys1->calcEnergy1();
 
         subHistory = sys2->processStep();
 
         //заполняем историю
         for (int j=0;j<subHistory.size();j++){
-            hist temp = {j,subHistory[j],eTemp,i};
+            hist temp = {j,subHistory[j],eTemp,eTemp2,i};
             history.push_back(temp);
         }
         subHistory.clear();
@@ -60,17 +65,19 @@ int main(){
 
     //processMaxH
     for (int i=0;i<100;i++){
-        cout<<"start "<<i<<" of PS"<<endl;
-        sys1 = new PartArray(6,6,1,parts);
+        cout<<"start "<<i<<" of maxH"<<endl;
+        sys1 = new PartArray(size,size,1,parts);
         sys2 = sys1->copy();
         sys1->setToGroundState();
         eTemp = sys1->calcEnergy1();
+        sys1->setToMaximalState();
+        eTemp2 = sys1->calcEnergy1();
 
         subHistory = sys2->processMaxH();
 
         //заполняем историю
         for (int j=0;j<subHistory.size();j++){
-            hist temp = {j,subHistory[j],eTemp,i};
+            hist temp = {j,subHistory[j],eTemp,eTemp2,i};
             history.push_back(temp);
         }
         subHistory.clear();
@@ -82,17 +89,19 @@ int main(){
 
     //processGroupMaxH
     for (int i=0;i<100;i++){
-        cout<<"start "<<i<<" of PS"<<endl;
-        sys1 = new PartArray(6,6,1,parts);
+        cout<<"start "<<i<<" of groupMaxH"<<endl;
+        sys1 = new PartArray(size,size,1,parts);
         sys2 = sys1->copy();
         sys1->setToGroundState();
         eTemp = sys1->calcEnergy1();
+        sys1->setToMaximalState();
+        eTemp2 = sys1->calcEnergy1();
 
         subHistory = sys2->processGroupMaxH();
 
         //заполняем историю
         for (int j=0;j<subHistory.size();j++){
-            hist temp = {j,subHistory[j],eTemp,i};
+            hist temp = {j,subHistory[j],eTemp,eTemp2,i};
             history.push_back(temp);
         }
         subHistory.clear();
@@ -104,17 +113,19 @@ int main(){
 
     //processGroupStep
     for (int i=0;i<100;i++){
-        cout<<"start "<<i<<" of PS"<<endl;
-        sys1 = new PartArray(6,6,1,parts);
+        cout<<"start "<<i<<" of groupStep"<<endl;
+        sys1 = new PartArray(size,size,1,parts);
         sys2 = sys1->copy();
         sys1->setToGroundState();
         eTemp = sys1->calcEnergy1();
+        sys1->setToMaximalState();
+        eTemp2 = sys1->calcEnergy1();
 
         subHistory = sys2->processGroupStep();
 
         //заполняем историю
         for (int j=0;j<subHistory.size();j++){
-            hist temp = {j,subHistory[j],eTemp,i};
+            hist temp = {j,subHistory[j],eTemp,eTemp2,i};
             history.push_back(temp);
         }
         subHistory.clear();
@@ -126,17 +137,19 @@ int main(){
 
     //processHEffective
     for (int i=0;i<100;i++){
-        cout<<"start "<<i<<" of PS"<<endl;
-        sys1 = new PartArray(6,6,1,parts);
+        cout<<"start "<<i<<" of HEffective"<<endl;
+        sys1 = new PartArray(size,size,1,parts);
         sys2 = sys1->copy();
         sys1->setToGroundState();
         eTemp = sys1->calcEnergy1();
+        sys1->setToMaximalState();
+        eTemp2 = sys1->calcEnergy1();
 
         subHistory = sys2->processHEffective();
 
         //заполняем историю
         for (int j=0;j<subHistory.size();j++){
-            hist temp = {j,subHistory[j],eTemp,i};
+            hist temp = {j,subHistory[j],eTemp,eTemp2,i};
             history.push_back(temp);
         }
         subHistory.clear();
